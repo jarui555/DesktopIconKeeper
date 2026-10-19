@@ -54,6 +54,16 @@ function Ok([string]$m) { Write-Host "  [OK]   $m" -ForegroundColor Green }
 function Bad([string]$m) { Write-Host "  [FAIL] $m" -ForegroundColor Red }
 function Step([string]$m) { Write-Host "`n== $m" -ForegroundColor Cyan }
 
+# PowerShell 5.1 的 Invoke-RestMethod 会把 -Body 的字符串按 ANSI 编码发出去，
+# 中文到 GitHub 那边就全变成问号（207 个 ? 的教训）。必须自己转成 UTF-8 字节。
+function PostJson {
+    param([string]$Uri, $Obj, [hashtable]$H, [int]$TimeoutSec = 30)
+    $json = $Obj | ConvertTo-Json -Depth 10
+    $bytes = [System.Text.Encoding]::UTF8.GetBytes($json)
+    return Invoke-RestMethod -Uri $Uri -Method Post -Headers $H -Body $bytes `
+        -ContentType 'application/json; charset=utf-8' -TimeoutSec $TimeoutSec
+}
+
 # ---------------------------------------------------------------- 前置检查
 if ([string]::IsNullOrWhiteSpace($Token)) {
     Bad '缺少 Token'
@@ -118,16 +128,16 @@ try {
             has_issues  = $true
             has_wiki    = $false
             has_projects = $false
-        } | ConvertTo-Json
+        }
 
         # 先按当前用户建；失败再按组织建
         $created = $null
         try {
-            $created = Invoke-RestMethod -Uri 'https://api.github.com/user/repos' -Method Post -Headers $headers -Body $body -ContentType 'application/json' -TimeoutSec 30
+            $created = PostJson -Uri 'https://api.github.com/user/repos' -Obj $body -H $headers
         }
         catch {
             try {
-                $created = Invoke-RestMethod -Uri "https://api.github.com/orgs/$Owner/repos" -Method Post -Headers $headers -Body $body -ContentType 'application/json' -TimeoutSec 30
+                $created = PostJson -Uri "https://api.github.com/orgs/$Owner/repos" -Obj $body -H $headers
             }
             catch {
                 Bad '建仓库失败：' + $_.Exception.Message
@@ -200,10 +210,10 @@ SHA256  $(if (Test-Path $exe) { (Get-FileHash $exe -Algorithm SHA256).Hash } els
 ---
 "@
 
-    $relBody = @{ tag_name = $Tag; name = "DesktopIconKeeper $Tag"; body = $releaseBody; draft = $false; prerelease = $false } | ConvertTo-Json
+    $relBody = @{ tag_name = $Tag; name = "DesktopIconKeeper $Tag"; body = $releaseBody; draft = $false; prerelease = $false }
     $release = $null
     try {
-        $release = Invoke-RestMethod -Uri "https://api.github.com/repos/$Owner/$Repo/releases" -Method Post -Headers $headers -Body $relBody -ContentType 'application/json' -TimeoutSec 30
+        $release = PostJson -Uri "https://api.github.com/repos/$Owner/$Repo/releases" -Obj $relBody -H $headers
         Ok "Release 已创建：$($release.html_url)"
     }
     catch {
