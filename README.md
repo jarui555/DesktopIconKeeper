@@ -1,6 +1,6 @@
 # 桌面图标位置记忆工具 · DesktopIconKeeper
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-lightgrey.svg)](#)
 [![.NET Framework](https://img.shields.io/badge/.NET%20Framework-4.8-512BD4.svg)](#)
 [![Single File](https://img.shields.io/badge/single%20exe-171%20KB-success.svg)](#)
@@ -712,3 +712,23 @@ DesktopIconKeeper.exe denied-preview
 | `UiCheck.cs` | 界面越界自检 |
 | `Cli.cs` | 命令行 + 控制台附着 |
 | `Program.cs` | 入口、单实例、DPI、崩溃日志 |
+
+---
+
+## 许可证
+
+本项目采用 **GNU General Public License v3.0**（GPL-3.0）。
+
+| 你可以 | 你必须 |
+|---|---|
+| 自由使用、修改、分发 | 保留版权声明与协议声明 |
+| 用于商业目的 | **衍生作品同样以 GPL-3.0 开源** |
+| fork 后独立发展 | 标明你做了哪些修改 |
+
+**关键约束**：如果你把本项目的代码并入自己的产品并**对外分发**，那个产品也必须以 GPL-3.0 开源并提供源码。
+
+这条约束只在「分发」时触发 —— 自己内部使用、个人自用不受影响，也不需要公开任何东西。
+
+完整条款见 [LICENSE](LICENSE)。
+
+Copyright (c) 2026 jarui555
